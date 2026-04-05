@@ -6,7 +6,7 @@ const morgan = require('morgan');
 
 // Import routes
 const authRoutes = require('./src/routes/authRoutes');
-const userRoutes = require('./src/routes/userRoutes'); // NEW
+const userRoutes = require('./src/routes/userRoutes');
 
 // Import error handler
 const errorHandler = require('./src/middleware/errorHandler');
@@ -31,7 +31,7 @@ app.get('/health', (req, res) => {
 
 // API Routes
 app.use('/api/auth', authRoutes);
-app.use('/api/users', userRoutes); // NEW
+app.use('/api/users', userRoutes);
 
 // 404 handler
 app.use('*', (req, res) => {
@@ -44,11 +44,16 @@ app.use('*', (req, res) => {
 // Error handling middleware (must be last)
 app.use(errorHandler);
 
-const PORT = process.env.PORT || 3000;
+// Only start server if not in test mode
+if (process.env.NODE_ENV !== 'test') {
+  const PORT = process.env.PORT || 3000;
+  app.listen(PORT, () => {
+    console.log(`🚀 Server running on port ${PORT}`);
+    console.log(`📍 Health check: http://localhost:${PORT}/health`);
+    console.log(`🔐 Auth API: http://localhost:${PORT}/api/auth`);
+    console.log(`👥 Users API: http://localhost:${PORT}/api/users`);
+  });
+}
 
-app.listen(PORT, () => {
-  console.log(`🚀 Server running on port ${PORT}`);
-  console.log(`📍 Health check: http://localhost:${PORT}/health`);
-  console.log(`🔐 Auth API: http://localhost:${PORT}/api/auth`);
-  console.log(`👥 Users API: http://localhost:${PORT}/api/users`); // NEW
-});
+// Export app for testing
+module.exports = app;
