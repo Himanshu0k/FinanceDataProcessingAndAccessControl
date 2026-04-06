@@ -5,10 +5,8 @@ const authenticate = require('../middleware/authMiddleware');
 const { query } = require('express-validator');
 const validate = require('../middleware/validationMiddleware');
 
-// All routes require authentication
 router.use(authenticate);
 
-// Query validators
 const dateRangeValidator = [
   query('startDate')
     .optional()
@@ -34,7 +32,50 @@ const periodValidator = [
     .withMessage('Period must be monthly, quarterly, or yearly')
 ];
 
-// Get overview statistics
+/**
+ * @swagger
+ * /api/dashboard/overview:
+ *   get:
+ *     summary: Get financial overview
+ *     tags: [Dashboard]
+ *     security:
+ *       - bearerAuth: []
+ *     parameters:
+ *       - in: query
+ *         name: startDate
+ *         schema:
+ *           type: string
+ *           format: date
+ *       - in: query
+ *         name: endDate
+ *         schema:
+ *           type: string
+ *           format: date
+ *     responses:
+ *       200:
+ *         description: Overview statistics
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 success:
+ *                   type: boolean
+ *                 data:
+ *                   type: object
+ *                   properties:
+ *                     overview:
+ *                       type: object
+ *                       properties:
+ *                         totalIncome:
+ *                           type: number
+ *                         totalExpense:
+ *                           type: number
+ *                         netBalance:
+ *                           type: number
+ *                         totalRecords:
+ *                           type: integer
+ */
 router.get(
   '/overview',
   dateRangeValidator,
@@ -42,7 +83,18 @@ router.get(
   dashboardController.getOverview
 );
 
-// Get category breakdown
+/**
+ * @swagger
+ * /api/dashboard/category-breakdown:
+ *   get:
+ *     summary: Get category-wise breakdown
+ *     tags: [Dashboard]
+ *     security:
+ *       - bearerAuth: []
+ *     responses:
+ *       200:
+ *         description: Category breakdown
+ */
 router.get(
   '/category-breakdown',
   [...dateRangeValidator, query('type').optional().isIn(['INCOME', 'EXPENSE'])],
@@ -50,15 +102,23 @@ router.get(
   dashboardController.getCategoryBreakdown
 );
 
-// Get recent activity
-router.get(
-  '/recent-activity',
-  [query('limit').optional().isInt({ min: 1, max: 50 })],
-  validate,
-  dashboardController.getRecentActivity
-);
-
-// Get monthly trends
+/**
+ * @swagger
+ * /api/dashboard/monthly-trends:
+ *   get:
+ *     summary: Get monthly trends
+ *     tags: [Dashboard]
+ *     security:
+ *       - bearerAuth: []
+ *     parameters:
+ *       - in: query
+ *         name: year
+ *         schema:
+ *           type: integer
+ *     responses:
+ *       200:
+ *         description: Monthly trends data
+ */
 router.get(
   '/monthly-trends',
   yearValidator,
@@ -66,13 +126,35 @@ router.get(
   dashboardController.getMonthlyTrends
 );
 
-// Get weekly trends
+/**
+ * @swagger
+ * /api/dashboard/financial-health:
+ *   get:
+ *     summary: Get financial health score
+ *     tags: [Dashboard]
+ *     security:
+ *       - bearerAuth: []
+ *     responses:
+ *       200:
+ *         description: Financial health metrics
+ */
+router.get(
+  '/financial-health',
+  dashboardController.getFinancialHealth
+);
+
+router.get(
+  '/recent-activity',
+  [query('limit').optional().isInt({ min: 1, max: 50 })],
+  validate,
+  dashboardController.getRecentActivity
+);
+
 router.get(
   '/weekly-trends',
   dashboardController.getWeeklyTrends
 );
 
-// Get top categories
 router.get(
   '/top-categories',
   [
@@ -83,18 +165,11 @@ router.get(
   dashboardController.getTopCategories
 );
 
-// Get income vs expense comparison
 router.get(
   '/income-expense-comparison',
   [...periodValidator, ...yearValidator],
   validate,
   dashboardController.getIncomeExpenseComparison
-);
-
-// Get financial health score
-router.get(
-  '/financial-health',
-  dashboardController.getFinancialHealth
 );
 
 module.exports = router;
