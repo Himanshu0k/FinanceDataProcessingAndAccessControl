@@ -7,5 +7,8 @@ module.exports = {
     'src/**/*.js',
     '!src/**/*.test.js',
     '!src/config/**'
-  ]
+  ],
+  maxWorkers: 1, // Run tests sequentially
+  globalSetup: './tests/global.setup.js',
+  globalTeardown: './tests/global.teardown.js'
 };

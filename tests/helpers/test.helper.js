@@ -14,8 +14,11 @@ class TestHelper {
   async createTestUsers() {
     const password = await bcrypt.hash('password123', 10);
 
-    const admin = await prisma.user.create({
-      data: {
+    // Use upsert to avoid duplicate errors
+    const admin = await prisma.user.upsert({
+      where: { email: 'admin@test.com' },
+      update: {},
+      create: {
         email: 'admin@test.com',
         password,
         name: 'Admin User',
@@ -24,8 +27,10 @@ class TestHelper {
       }
     });
 
-    const analyst = await prisma.user.create({
-      data: {
+    const analyst = await prisma.user.upsert({
+      where: { email: 'analyst@test.com' },
+      update: {},
+      create: {
         email: 'analyst@test.com',
         password,
         name: 'Analyst User',
@@ -34,8 +39,10 @@ class TestHelper {
       }
     });
 
-    const viewer = await prisma.user.create({
-      data: {
+    const viewer = await prisma.user.upsert({
+      where: { email: 'viewer@test.com' },
+      update: {},
+      create: {
         email: 'viewer@test.com',
         password,
         name: 'Viewer User',
@@ -44,8 +51,10 @@ class TestHelper {
       }
     });
 
-    const inactiveUser = await prisma.user.create({
-      data: {
+    const inactiveUser = await prisma.user.upsert({
+      where: { email: 'inactive@test.com' },
+      update: {},
+      create: {
         email: 'inactive@test.com',
         password,
         name: 'Inactive User',
@@ -59,6 +68,11 @@ class TestHelper {
 
   // Create sample records for a user
   async createSampleRecords(userId) {
+    // Delete existing records for this user first
+    await prisma.record.deleteMany({
+      where: { userId }
+    });
+
     const records = [];
 
     // January records
