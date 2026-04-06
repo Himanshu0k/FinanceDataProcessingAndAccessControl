@@ -1,8 +1,8 @@
 const request = require('supertest');
-const app = require('../server'); // We'll need to modify server.js
-const testHelper = require('./helper/test.helper');
+const app = require('../server');
+const testHelper = require('./helpers/test.helper');
 
-describe('Authentication API', () => {
+describe('Authentication API Tests', () => {
   beforeAll(async () => {
     await testHelper.cleanDatabase();
   });
@@ -29,7 +29,6 @@ describe('Authentication API', () => {
     });
 
     it('should not register user with duplicate email', async () => {
-      // First registration
       await request(app)
         .post('/api/auth/register')
         .send({
@@ -38,7 +37,6 @@ describe('Authentication API', () => {
           name: 'User One'
         });
 
-      // Duplicate registration
       const res = await request(app)
         .post('/api/auth/register')
         .send({
@@ -87,6 +85,19 @@ describe('Authentication API', () => {
 
       expect(res.statusCode).toBe(400);
       expect(res.body.success).toBe(false);
+    });
+
+    it('should default to VIEWER role if not specified', async () => {
+      const res = await request(app)
+        .post('/api/auth/register')
+        .send({
+          email: 'defaultrole@test.com',
+          password: 'password123',
+          name: 'Default Role User'
+        });
+
+      expect(res.statusCode).toBe(201);
+      expect(res.body.data.user.role).toBe('VIEWER');
     });
   });
 

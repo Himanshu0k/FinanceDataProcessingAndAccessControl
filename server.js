@@ -7,6 +7,8 @@ const morgan = require('morgan');
 // Import routes
 const authRoutes = require('./src/routes/authRoutes');
 const userRoutes = require('./src/routes/userRoutes');
+const recordRoutes = require('./src/routes/recordRoutes');
+const dashboardRoutes = require('./src/routes/dashboardRoutes'); // NEW
 
 // Import error handler
 const errorHandler = require('./src/middleware/errorHandler');
@@ -32,6 +34,8 @@ app.get('/health', (req, res) => {
 // API Routes
 app.use('/api/auth', authRoutes);
 app.use('/api/users', userRoutes);
+app.use('/api/records', recordRoutes);
+app.use('/api/dashboard', dashboardRoutes); // NEW
 
 // 404 handler
 app.use('*', (req, res) => {
@@ -52,8 +56,9 @@ if (process.env.NODE_ENV !== 'test') {
     console.log(`📍 Health check: http://localhost:${PORT}/health`);
     console.log(`🔐 Auth API: http://localhost:${PORT}/api/auth`);
     console.log(`👥 Users API: http://localhost:${PORT}/api/users`);
+    console.log(`💰 Records API: http://localhost:${PORT}/api/records`);
+    console.log(`📊 Dashboard API: http://localhost:${PORT}/api/dashboard`); // NEW
   });
 }
 
-// Export app for testing
 module.exports = app;
